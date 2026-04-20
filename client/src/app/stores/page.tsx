@@ -26,14 +26,14 @@ export default function StoresPage() {
   const { data: stores, isLoading } = useQuery<StoreData[]>({
     queryKey: ['stores'],
     queryFn: async () => {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/stores`);
+      const res = await axios.get('/api/stores');
       return res.data.data;
     }
   });
 
   const mutation = useMutation({
     mutationFn: async (data: { name: string, location: string }) => {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/stores`, data);
+      await axios.post('/api/stores', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stores'] });

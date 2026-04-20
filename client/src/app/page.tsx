@@ -38,8 +38,8 @@ export default function OrdersPage() {
     queryKey: ['orders', activeStoreId],
     queryFn: async () => {
       const url = activeStoreId 
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/orders?store_id=${activeStoreId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/orders`;
+        ? `/api/orders?store_id=${activeStoreId}`
+        : `/api/orders`;
       const res = await axios.get(url);
       return res.data.data;
     }
@@ -47,7 +47,7 @@ export default function OrdersPage() {
 
   const mutation = useMutation({
     mutationFn: async ({ id, status }: { id: number, status: string }) => {
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/orders/${id}/status`, { status });
+      await axios.patch(`/api/orders/${id}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });

@@ -15,7 +15,7 @@ export function AppSidebar() {
   const { data: stores, isLoading } = useQuery({
     queryKey: ['stores'],
     queryFn: async () => {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/stores`);
+      const res = await axios.get('/api/stores');
       return res.data.data;
     }
   });

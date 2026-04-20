@@ -20,8 +20,8 @@ export function StatsOverview() {
     queryKey: ['analytics', activeStoreId],
     queryFn: async () => {
       const url = activeStoreId 
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/analytics?store_id=${activeStoreId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/analytics`;
+        ? `/api/analytics?store_id=${activeStoreId}`
+        : `/api/analytics`;
       const res = await axios.get(url);
       return res.data.data;
     }

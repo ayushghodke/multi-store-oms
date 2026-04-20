@@ -58,7 +58,7 @@ export default function NewOrderPage() {
       // Calculate total amount programmatically
       const totalAmount = data.items.reduce((acc, item) => acc + (item.quantity * item.price), 0);
       
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/orders`, {
+      const res = await axios.post('/api/orders', {
         store_id: data.store_id,
         total_amount: totalAmount,
         items: data.items,
