@@ -105,7 +105,7 @@ export default function OrdersPage() {
                       <TableCell className="text-right">
                         <Select 
                           value={order.status || 'pending'} 
-                          onValueChange={(val: string) => mutation.mutate({ id: order.id, status: val })}
+                          onValueChange={(val) => { if (val) mutation.mutate({ id: order.id, status: val }) }}
                           disabled={mutation.isPending}
                         >
                           <SelectTrigger className={`w-full h-8 text-xs font-bold uppercase tracking-wider ${
