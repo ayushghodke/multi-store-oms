@@ -9,10 +9,17 @@ import axios from "axios";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface StoreData {
+  id: number;
+  name: string;
+  location: string;
+  created_at: string;
+}
+
 export function AppSidebar() {
   const { activeStoreId, setActiveStoreId } = useStore();
 
-  const { data: stores, isLoading } = useQuery({
+  const { data: stores, isLoading } = useQuery<StoreData[]>({
     queryKey: ['stores'],
     queryFn: async () => {
       const res = await axios.get('/api/stores');
