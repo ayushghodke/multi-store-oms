@@ -104,8 +104,8 @@ export default function OrdersPage() {
                       <TableCell className="font-bold text-emerald-700">${Number(order.total_amount).toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <Select 
-                          value={order.status} 
-                          onValueChange={(val) => mutation.mutate({ id: order.id, status: val })}
+                          value={order.status || 'pending'} 
+                          onValueChange={(val: string) => mutation.mutate({ id: order.id, status: val })}
                           disabled={mutation.isPending}
                         >
                           <SelectTrigger className={`w-full h-8 text-xs font-bold uppercase tracking-wider ${
