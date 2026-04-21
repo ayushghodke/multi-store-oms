@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Target, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -30,20 +33,39 @@ interface Order {
   order_items: { id: number, product_name: string, quantity: number, price: string }[];
 }
 
+interface OrdersResponse {
+  data: Order[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }
+}
+
 export default function OrdersPage() {
   const { activeStoreId } = useStore();
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
 
-  const { data: orders, isLoading, isError } = useQuery<Order[]>({
-    queryKey: ['orders', activeStoreId],
+  // Reset page when switching stores
+  useEffect(() => {
+    setPage(1);
+  }, [activeStoreId]);
+
+  const { data: response, isLoading, isError } = useQuery<OrdersResponse>({
+    queryKey: ['orders', activeStoreId, page],
     queryFn: async () => {
       const url = activeStoreId 
-        ? `/api/orders?store_id=${activeStoreId}`
-        : `/api/orders`;
+        ? `/api/orders?store_id=${activeStoreId}&page=${page}&limit=10`
+        : `/api/orders?page=${page}&limit=10`;
       const res = await axios.get(url);
-      return res.data.data;
+      return res.data;
     }
   });
+
+  const orders = response?.data || [];
+  const meta = response?.meta;
 
   const mutation = useMutation({
     mutationFn: async ({ id, status }: { id: number, status: string }) => {
@@ -128,6 +150,36 @@ export default function OrdersPage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {meta && meta.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <div className="text-sm text-slate-500">
+                Showing {((meta.page - 1) * meta.limit) + 1} to {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} orders
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={meta.page <= 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                </Button>
+                <div className="flex items-center justify-center px-4 text-sm font-semibold bg-slate-50 border rounded-md">
+                  Page {meta.page} of {meta.totalPages}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+                  disabled={meta.page >= meta.totalPages}
+                >
+                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

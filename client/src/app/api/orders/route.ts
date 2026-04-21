@@ -11,16 +11,39 @@ export async function GET(req: NextRequest) {
         ? parseInt(storeIdParam, 10)
         : undefined;
 
-    const orders = await prisma.orders.findMany({
-      where: storeId ? { store_id: storeId } : undefined,
-      include: {
-        order_items: true,
-        stores: true,
-      },
-      orderBy: { created_at: 'desc' },
-    });
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+    
+    const page = pageParam && !isNaN(parseInt(pageParam)) ? parseInt(pageParam, 10) : 1;
+    const limit = limitParam && !isNaN(parseInt(limitParam)) ? parseInt(limitParam, 10) : 10;
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json({ success: true, data: orders });
+    const where = storeId ? { store_id: storeId } : undefined;
+
+    const [orders, totalOrders] = await Promise.all([
+      prisma.orders.findMany({
+        where,
+        include: {
+          order_items: true,
+          stores: true,
+        },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.orders.count({ where }),
+    ]);
+
+    return NextResponse.json({ 
+      success: true, 
+      data: orders,
+      meta: {
+        total: totalOrders,
+        page,
+        limit,
+        totalPages: Math.ceil(totalOrders / limit)
+      }
+    });
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(
