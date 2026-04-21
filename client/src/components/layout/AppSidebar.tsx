@@ -44,7 +44,9 @@ export function AppSidebar() {
                onValueChange={(val) => setActiveStoreId(Number(val))}
             >
               <SelectTrigger className="w-full bg-background border-border shrink-0 focus:ring-1">
-                <SelectValue placeholder="Select a store" />
+                <SelectValue placeholder="Select a store">
+                  {stores?.find((s) => s.id === activeStoreId)?.name || "Select a store"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {stores?.map((store) => (
