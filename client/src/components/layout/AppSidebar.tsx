@@ -2,7 +2,7 @@
 
 import { useStore } from "@/context/StoreContext";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
-import { Store, ShoppingCart, PlusCircle, LayoutDashboard } from "lucide-react";
+import { Store, ShoppingCart, PlusCircle, LayoutDashboard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -89,6 +89,22 @@ export function AppSidebar() {
                   <SidebarMenuButton tooltip="Manage Stores">
                     <Store className="w-4 h-4 mr-2" />
                     <span className="font-medium">Stores</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs uppercase font-bold tracking-wider">Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Link href="/admin" className="w-full">
+                  <SidebarMenuButton tooltip="Admin Dashboard">
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                    <span className="font-medium">Admin & Analytics</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

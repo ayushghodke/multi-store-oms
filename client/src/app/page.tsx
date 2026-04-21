@@ -13,7 +13,8 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Target, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import {
   Table,
   TableBody,
@@ -47,6 +48,9 @@ export default function OrdersPage() {
   const { activeStoreId } = useStore();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+
+  // Subscribe to Supabase Realtime for live order updates
+  useRealtimeOrders(activeStoreId);
 
   // Reset page when switching stores
   useEffect(() => {

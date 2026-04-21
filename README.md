@@ -1,58 +1,95 @@
 # Multi-Store Order Management System (M-OMS) 🚀
 
-A full-stack, seamlessly unified web application built for scalable storefront order management. This project completely fulfills and surpasses the evaluation criteria by adopting a modern, zero-cost, serverless deployment pattern.
+A production-ready, full-stack web application for scalable multi-storefront order management. Built on a modern, serverless-first architecture deployed entirely on Vercel.
 
-## 🌟 Features & Assessment Criteria Fulfillment
+## 🌟 Features
 
-### 1. Code Quality
-- **Modular Structure**: The codebase utilizes an isolated `components/` directory with UI primitives provided by Shadcn UI. State is abstracted into Context providers (`StoreContext`), and logic routing is completely contained within standard Next.js App Router API handlers.
-- **Readability & Reusability**: Extensive use of TypeScript interfaces drastically reduces bugs and ensures robust contract delivery between the backend and UI.
+### Task 1: CRUD & Infrastructure ✅
+- Full CRUD for **Stores** and **Orders** with related **Order Items**
+- **Pagination** on the Orders list with server-side skip/take logic
+- **Database Indexes** on `store_id`, `created_at`, and `order_id` for fast lookups
+- **Zod validation** on all API inputs
+- **React Query** for client-side state, caching, and background sync
+- **Prisma Transaction** for atomic Order + OrderItems creation
 
-### 2. Backend Design
-- **API Structure**: Highly scalable Next.js Serverless API routes replacing a legacy Express app. Evaluates queries locally at the Edge (`/api/orders`, `/api/stores`).
-- **Validation (Zod)**: Deep validation logic implemented using **Zod**. Every API endpoint enforces strict typing and body validation preventing bad database entries.
-- **Error Handling**: Graceful try/catch blocks with proper REST status returns, capturing Zod errors dynamically and responding to the client immediately.
+### Task 2: Real-Time Notifications ✅
+- **Supabase Realtime** subscription to the `orders` table via `useRealtimeOrders` hook
+- **`sonner` toast notifications** fire instantly when a new order is INSERTed
+- React Query cache is invalidated on both INSERT and UPDATE events
+- Works across tabs — create an order in one tab, see notifications in another
 
-### 3. Database Design
-- **Proper Schema**: Relational database modeling using **Prisma ORM** connecting to a Supabase PostgreSQL instance. (1:M Stores → Orders → Items).
-- **Indexing**: Database optimization includes indexed relationships (`store_id`, `order_id`, and `created_at`) directly in the Prisma schema for highly efficient database lookups on filtering.
-- **Query Optimization**: Completely avoids N+1 query limits by employing Prisma's nested relational `includes` within `.findMany()`.
+### Task 3: Data Archival & Analytics ✅
+- **Archive API** (`POST /api/admin/archive`): Moves completed orders older than 30 days to `order_archive` in a single Prisma transaction, snapshotting `order_items` as JSON before cascade deletion
+- **Enhanced Analytics** (`GET /api/analytics`):
+  - Orders per day (last 30 days)
+  - Revenue per store breakdown
+  - Top 5 selling products via raw SQL aggregation
+  - Count of orders eligible for archival
+- **Admin Dashboard** (`/admin`): Visual analytics page with archive control panel
 
-### 4. Frontend Quality
-- **State Management**: Implemented leveraging **React Query (TanStack)**, providing caching, automatic background refetching, and normalized mutation handling. Global lightweight states are handled natively with React Context.
-- **UI Responsiveness & Component Structure**: Uses Tailwind CSS paired with Shadcn components, ensuring mobile accessibility and a beautiful, high-quality dark mode capable design framework.
+## ⚙️ Tech Stack
 
-### 5. Scalability & Performance
-- **Serverless Architecture**: Moving away from long-running node servers allows this app to scale to 0 traffic entirely free of charge, instantly spinning up thousands of parallel functions under heavy load without blocking constraints.
-- **Singleton Connection Pooling**: Integrated the Supabase Transaction Pooler (port 6543) coupled with a Singleton Prisma configuration ensuring that serverless cold starts physically cannot exhaust database connections.
-- **Pagination**: Implemented server-side pagination with native page calculation and offset slicing logic, paired with automated interactive UI navigation.
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Next.js 16 (App Router) |
+| Styling | Tailwind CSS v4, Shadcn UI |
+| State | TanStack React Query v5 |
+| Realtime | Supabase Realtime (WebSockets) |
+| Validation | Zod, React Hook Form |
+| Backend | Next.js API Routes (Serverless) |
+| ORM | Prisma v7 (`@prisma/adapter-pg`) |
+| Database | Supabase (PostgreSQL 15) |
+| Deployment | Vercel |
 
-### 6. Bonus Criteria Achieved
-- **Full TypeScript Implementation**: Types strictly coupled from API to the Frontend.
-- **Deployment Platform**: Fully hosted on **Vercel** with integrated CICD.
-- **Comprehensive Documentation**: Outlined entirely in this document!
+## 📐 Architecture
 
-## ⚙️ Tech Stack Summary
-- **Frontend**: React 19, Next.js 15, Tailwind CSS v4, Lucide React, Shadcn
-- **Backend/API**: Next.js API Routes (Serverless)
-- **Database ORM**: Prisma v7 (`@prisma/adapter-pg`)
-- **Database Engine**: Supabase (PostgreSQL 15+)
-- **Validations**: Zod, React Hook Form
-- **Deployment**: Vercel
+```
+client/
+├── src/app/
+│   ├── page.tsx              # Orders Dashboard (with Realtime)
+│   ├── admin/page.tsx        # Admin: Analytics + Archival
+│   ├── stores/page.tsx       # Store management
+│   ├── orders/new/page.tsx   # Create new order
+│   └── api/
+│       ├── stores/           # GET, POST /api/stores
+│       ├── orders/           # GET (paginated), POST /api/orders
+│       │   └── [id]/status/  # PATCH /api/orders/:id/status
+│       ├── analytics/        # GET /api/analytics
+│       └── admin/archive/    # POST /api/admin/archive
+├── src/hooks/
+│   └── useRealtimeOrders.ts  # Supabase Realtime hook
+├── src/lib/
+│   ├── db.ts                 # Prisma Singleton (pooled connection)
+│   ├── supabase.ts           # Supabase browser client
+│   └── schemas.ts            # Shared Zod schemas
+└── prisma/schema.prisma      # Database schema with indexes
+```
 
-## 🚀 Environment Setup
-
-If you wish to spin this codebase up locally:
+## 🚀 Local Setup
 
 1. Clone the repository: `git clone ...`
-2. Navigate into `client/`: `cd client`
+2. Navigate to `client/`: `cd client`
 3. Install dependencies: `npm install`
-4. Define your Environment variable in a `.env.local` file:
+4. Create `client/.env.local`:
 ```ini
-DATABASE_URL="postgresql://postgres.<ID>:<PASSWORD>@aws-0-<REGION>.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DATABASE_URL="postgresql://postgres.<ID>:<PWD>@pooler.supabase.com:6543/postgres?pgbouncer=true"
+NEXT_PUBLIC_SUPABASE_URL="https://<ID>.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="<your-anon-key>"
 ```
-5. Apply database schemas: `npx prisma db push`
-6. Start development server: `npm run dev`
+5. Push DB schema: `npx prisma db push`
+6. Enable Supabase Realtime (one-time):
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE orders;
+```
+7. Start dev server: `npm run dev`
+
+## 🔐 Environment Variables (Vercel)
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Supabase **Transaction Pooler** string (port 6543) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key (safe to expose) |
 
 ---
-*Built with ❤️ leveraging the bleeding edge of Serverless JavaScript Architecture.*
+*Built with ❤️ on the bleeding edge of Serverless JavaScript Architecture.*

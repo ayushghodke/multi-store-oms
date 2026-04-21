@@ -5,6 +5,7 @@ import ReactQueryProvider from "@/lib/ReactQueryProvider";
 import { StoreProvider } from "@/context/StoreContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ClientLayout from "@/components/layout/ClientLayout";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             </TooltipProvider>
           </StoreProvider>
         </ReactQueryProvider>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

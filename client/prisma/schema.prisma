@@ -37,3 +37,18 @@ model stores {
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   orders     orders[]
 }
+
+model order_archive {
+  id              Int      @id @default(autoincrement())
+  original_id     Int
+  store_id        Int?
+  total_amount    Decimal  @db.Decimal(10, 2)
+  status          String?
+  created_at      DateTime?
+  archived_at     DateTime @default(now()) @db.Timestamptz(6)
+  items_snapshot  Json
+
+  @@index([original_id])
+  @@index([store_id])
+  @@index([archived_at])
+}
